@@ -1,9 +1,13 @@
-from typing import List
-from command import Command
-from commands.init import Init
+from typing import Sequence
 
-commands: list[Command] = [
-    Init,
+from .commands.init import Init
+from .commands.run import Run
+from .command import Command
+
+
+commands: Sequence[Command] = [
+    Init(),
+    Run(),
 ]
 
 

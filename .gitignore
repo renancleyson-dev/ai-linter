@@ -21,7 +21,7 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
+share/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -78,6 +78,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+etc/jupyter
 
 # IPython
 profile_default/
@@ -160,3 +161,5 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+.vscode/

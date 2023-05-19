@@ -6,9 +6,22 @@ build-backend = "setuptools.build_meta"
 name = "ai-linter"
 version = "0.1.0"
 requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "mypy",
+    "openai",
+    "python-dotenv",
+]
 
 [project.optional-dependencies]
-dev = ["flake8"]
+dev = ["black"]
 
 [tool.setuptools]
 py-modules = []
+
+[tool.black]
+max-line-length = 90
+
+[tool.mypy]
+exclude = ["share/"]
+check_untyped_defs = true
