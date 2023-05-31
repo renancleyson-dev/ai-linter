@@ -2,6 +2,26 @@
 Linter for rules written in semantic text.
 
 ## Development
+### Setup
+
+Feel free to setup with your own tools.
+
+The standard way to setup is with `pip-tools` and `venv`:
 ```
-  python -m apps/cli
+  git clone github.com/renancleyson-dev/ai-linter/
+  cd ai-linter/
+  python -m venv .venv
+  source .venv/bin/activate
+
+  pip install pip-tools
+  pip-sync
+```
+### Initialize the CLI with a project
+```
+  python -m apps.cli init --path=/path/to/project
+```
+A .ai-linter.json file will be created, fill some rules there.
+### Run the linter
+```
+  python -m apps.cli run --path=/path/to/project
 ```
