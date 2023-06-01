@@ -14,6 +14,7 @@ class Configuration(TypedDict):
     rules: list[Rule]
     extensions: list[str]
     exclude: NotRequired[list[str]]
+    OPENAI_API_KEY: NotRequired[str]
 
 
 class ConfigurationStorageABC(ABC):

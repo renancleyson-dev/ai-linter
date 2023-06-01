@@ -7,7 +7,7 @@ from core.linter import Linter
 from ..command import Command
 from core.common.models import Repository
 from core.common.storage import Configuration
-from ..config import ConfigurationStorage
+from ..config import ConfigurationStorage, LintEngine
 from core.utils.list_tools import flat
 
 
@@ -32,9 +32,14 @@ class Run(Command):
         linter = Linter(configuration)
 
         if not configuration["rules"]:
-            raise ValueError("I need some rules here, buddy!")
+            raise ValueError("rules missing on the .ai-linter.json")
+        
+        if not configuration["OPENAI_API_KEY"]:
+            raise ValueError("OPEN_API_KEY missing on the .ai-linter.json")
 
         repository = self.open(abspath, configuration)
+
+        LintEngine.set_api_key(configuration["OPENAI_API_KEY"])
         linter.lint_by_repository(repository)
 
     @staticmethod

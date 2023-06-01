@@ -8,9 +8,6 @@ from core.common.storage import LocalConfigurationStorage
 from core.common.models import Repository
 from core.linter import Linter
 
-dotenv.load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 LintEngine = OpenAILintEngine()
 RepositoryStorage = LocalRepositoryStorage()
 ConfigurationStorage = LocalConfigurationStorage()

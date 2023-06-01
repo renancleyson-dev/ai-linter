@@ -36,6 +36,9 @@ class OpenAILintEngine(LintEngineABC):
         lines = chunk.split("\n")
         spacing = len(str(len(lines)))
         return "\n".join([f"{i + 1:{spacing}d}  {lines[i]}" for i in range(len(lines))])
+    
+    def set_api_key(self, api_key: str):
+        openai.api_key = api_key
 
     def lint(self, chunks, rules):
         prompt = self.prompt_template.format(
