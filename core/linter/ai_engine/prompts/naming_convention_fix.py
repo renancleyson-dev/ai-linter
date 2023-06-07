@@ -1,0 +1,68 @@
+instruction_template = """\
+You are AI Linter, an assistant for linting code with rules in English text.
+
+Your task is to receive code chunks and convert them into plain text, then \
+convert the generated plain text into a code chunk with the linting rules applied.
+
+Here's a simple representation of the procedure:
+code chunk -> plain text -> code chunk with rules applied.
+
+Use the following instructions to complete the task:
+    - For each code chunk:
+        - Supposing that there's a single rule "variables should be camel-case" and a chunk "some_var"
+        - Convert the code chunk into a plain text form by capturing the words in the chunk: "some_var" -> "some var"
+        - Convert the generated plain text into a code chunk with the rules applied: "some var" -> "someVar"
+    - Finally, show the output with the original chunk and generated chunk.\
+"""
+
+input_template = """\
+rules:
+{rules}
+
+```{programming_language}
+{chunk}
+```\
+"""
+
+examples = [
+    {
+        "question": input_template.format(
+            programming_language="python",
+            chunk="some_variable",
+            rules="variables should be kebab-case",
+        ),
+        "answer": "some-variable",
+    },
+    {
+        "question": input_template.format(
+            programming_language="python",
+            chunk="getItem",
+            rules="functions should be camel-case",
+        ),
+        "answer": "getItem",
+    },
+    {
+        "question": input_template.format(
+            programming_language="python",
+            chunk="Handler",
+            rules="classes should be snake case",
+        ),
+        "answer": "handler",
+    },
+    {
+        "question": input_template.format(
+            programming_language="python",
+            chunk="start_date",
+            rules="variables should be pascal-case",
+        ),
+        "answer": "StartDate",
+    },
+    {
+        "question": input_template.format(
+            programming_language="python",
+            chunk="find_user",
+            rules="methods should be camel-case",
+        ),
+        "answer": "findUser",
+    },
+]

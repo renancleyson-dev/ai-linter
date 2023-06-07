@@ -4,7 +4,6 @@ from collections.abc import Iterable, Iterator
 import os
 from typing import Optional, Union, TypeGuard, ClassVar
 
-from core.common.ai_engine import LintEngineABC
 from core.common.storage import RepositoryStorageABC
 
 Child = Union["RepositoryFile", "RepositoryDirectory"]
@@ -67,16 +66,10 @@ class Repository(Iterable):
 
     root: RepositoryDirectory
     directories: dict[str, RepositoryDirectory]
-    LintEngine: ClassVar[LintEngineABC]
     RepositoryStorage: ClassVar[RepositoryStorageABC]
 
     @classmethod
-    def set_dependencies(
-        cls,
-        LintEngine: LintEngineABC,
-        RepositoryStorage: RepositoryStorageABC,
-    ):
-        cls.LintEngine = LintEngine
+    def set_dependencies(cls, RepositoryStorage: RepositoryStorageABC):
         cls.RepositoryStorage = RepositoryStorage
 
     def __init__(self, source: str):

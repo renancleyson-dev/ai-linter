@@ -7,9 +7,9 @@ name = "ai-linter"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "torch",
     "mypy",
-    "openai",
+    "langchain",
+    "openai"
 ]
 
 [project.optional-dependencies]

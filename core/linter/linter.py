@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from core.common.models import Repository, is_file
 from core.common.storage import RepositoryStorageABC, Configuration
-from core.common.ai_engine import LintEngineABC, Chunk
+from .ai_engine import LintEngineABC, Chunk
 
 
 class Linter:
