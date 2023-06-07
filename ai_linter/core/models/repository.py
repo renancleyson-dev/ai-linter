@@ -4,7 +4,7 @@ from collections.abc import Iterable, Iterator
 import os
 from typing import Optional, Union, TypeGuard, ClassVar
 
-from core.common.storage import RepositoryStorageABC
+from ai_linter.core.storage import RepositoryStorageABC
 
 Child = Union["RepositoryFile", "RepositoryDirectory"]
 
@@ -33,7 +33,7 @@ class RepositoryDirectory(Iterable):
         return RepositoryDirectoryIterator(self)
 
 
-class RepositoryDirectoryIterator:
+class RepositoryDirectoryIterator(Iterator):
     """
     Iterate through the repository in a breadth-first approach
     """

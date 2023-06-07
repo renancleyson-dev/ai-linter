@@ -1,7 +1,7 @@
 import os
 import pathlib
 
-from ..config import ConfigurationStorage
+from ..settings import ConfigurationStorage
 from ..command import Command
 
 

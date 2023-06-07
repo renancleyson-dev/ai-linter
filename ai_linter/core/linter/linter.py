@@ -1,8 +1,8 @@
 import os.path
 from typing import ClassVar
 
-from core.common.models import Repository, is_file
-from core.common.storage import RepositoryStorageABC, Configuration
+from ai_linter.core.models import Repository, is_file
+from ai_linter.core.storage import RepositoryStorageABC, Configuration
 from .ai_engine import LintEngineABC, Chunk
 
 

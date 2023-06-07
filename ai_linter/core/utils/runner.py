@@ -47,7 +47,7 @@ class Runner:
 
     def run_required(self, func: Callable[P, T]) -> Callable[P, T]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs):
             if not self.is_running:
                 raise RuntimeError(self.error_message)
 

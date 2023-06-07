@@ -18,10 +18,10 @@ The standard way to setup is with `pip-tools` and `venv`:
 ```
 ### Initialize the CLI with a project
 ```
-  python -m apps.cli init --path=/path/to/project
+  python -m ai_linter.cli init --path=/path/to/project
 ```
 A .ai-linter.json file will be created, fill some rules there.
 ### Run the linter
 ```
-  python -m apps.cli run --path=/path/to/project
+  python -m ai_linter.cli run --path=/path/to/project
 ```

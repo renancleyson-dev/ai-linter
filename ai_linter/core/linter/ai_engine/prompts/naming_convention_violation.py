@@ -35,6 +35,7 @@ examples = [
         "question": input_template.format(
             parameter_type="typing",
             chunk="Sequence",
+            programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
         "answer": "NONE",
@@ -43,6 +44,7 @@ examples = [
         "question": input_template.format(
             parameter_type="class",
             chunk="Init",
+            programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
         "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case"\n}',
@@ -51,6 +53,7 @@ examples = [
         "question": input_template.format(
             parameter_type="class",
             chunk="Run",
+            programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
         "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}',
@@ -59,6 +62,7 @@ examples = [
         "question": input_template.format(
             parameter_type="class",
             chunk="Command",
+            programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
         "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}',
@@ -67,6 +71,7 @@ examples = [
         "question": input_template.format(
             parameter_type="function",
             chunk="someFunction",
+            programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
         "answer": '{\n"naming-convention": ["camel-case"], "rule": "variables and functions should be snake-case" \n}',
