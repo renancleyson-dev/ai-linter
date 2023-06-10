@@ -1,1 +1,1 @@
-from .lint_engine import LintEngineABC, OpenAILintEngine, Chunk
+from .lint_engine import BaseLintEngine, OpenAILintEngine, Chunk

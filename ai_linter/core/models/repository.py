@@ -1,10 +1,8 @@
-from dataclasses import dataclass, field
 from collections import deque
 from collections.abc import Iterable, Iterator
+from dataclasses import dataclass, field
 import os
-from typing import Optional, Union, TypeGuard, ClassVar
-
-from ai_linter.core.storage import RepositoryStorageABC
+from typing import Optional, Union, TypeGuard
 
 Child = Union["RepositoryFile", "RepositoryDirectory"]
 
@@ -70,11 +68,6 @@ class Repository(Iterable):
 
     root: RepositoryDirectory
     directories: dict[str, RepositoryDirectory]
-    RepositoryStorage: ClassVar[RepositoryStorageABC]
-
-    @classmethod
-    def set_dependencies(cls, RepositoryStorage: RepositoryStorageABC):
-        cls.RepositoryStorage = RepositoryStorage
 
     def __init__(self, source: str):
         self.root = RepositoryDirectory(source)
@@ -82,10 +75,6 @@ class Repository(Iterable):
 
     def __iter__(self):
         return iter(self.root)
-
-    @staticmethod
-    def is_root(repo_dir: RepositoryDirectory):
-        return repo_dir.parent == None
 
     def get_directory(self, path: str):
         return self.directories[path]
@@ -99,3 +88,7 @@ class Repository(Iterable):
 
     def add_file(self, name: str, parent: RepositoryDirectory):
         parent.children.append(RepositoryFile(name, parent))
+    
+    @staticmethod
+    def is_root(repo_dir: RepositoryDirectory):
+        return repo_dir.parent == None

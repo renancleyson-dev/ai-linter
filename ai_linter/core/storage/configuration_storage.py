@@ -17,7 +17,7 @@ class Configuration(TypedDict):
     OPENAI_API_KEY: NotRequired[str]
 
 
-class ConfigurationStorageABC(ABC):
+class BaseConfigurationStorage(ABC):
     """
     The configuration is a dict.
     prefer to extend the key's value to avoid overriding previous configuration.
@@ -38,7 +38,7 @@ class ConfigurationStorageABC(ABC):
         pass
 
 
-class LocalConfigurationStorage(ConfigurationStorageABC):
+class LocalConfigurationStorage(BaseConfigurationStorage):
     base_name = ".ai-linter.json"
     DEFAULT_CONFIGURATION: Configuration = {"rules": [], "extensions": []}
 

@@ -3,12 +3,12 @@ import pathlib
 from glob import glob
 
 from ai_linter.core.linter import Linter
-from ai_linter.core.models import Repository, is_file
+from ai_linter.core.models import Repository
 from ai_linter.core.storage import Configuration
 from ai_linter.core.utils.list_tools import flat
 
 from ..command import Command
-from ..settings import ConfigurationStorage, LintEngine
+from ..settings import configurationStorage, lintEngine
 
 
 class Run(Command):
@@ -28,7 +28,7 @@ class Run(Command):
 
     def run(self, args: Args):
         abspath = os.path.abspath(args.path)
-        configuration = ConfigurationStorage.get_configuration(os.getcwd())
+        configuration = configurationStorage.get_configuration(os.getcwd())
         api_key = configuration.get("OPENAI_API_KEY")
 
         if not configuration["rules"]:
@@ -38,7 +38,7 @@ class Run(Command):
             raise ValueError("OPEN_API_KEY missing on the .ai-linter.json")
 
         linter = Linter(configuration)
-        LintEngine.set_api_key(api_key)
+        lintEngine.set_api_key(api_key)
 
         if os.path.isdir(abspath):
             repository = self.open(abspath, configuration)

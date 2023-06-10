@@ -32,13 +32,13 @@ class Chunk(TypedDict):
     text: str
 
 
-class LintEngineABC(ABC):
+class BaseLintEngine(ABC):
     @abstractmethod
     def lint(self, chunks: list[Chunk], rules: list[str]) -> dict[str, list[Error]]:
         pass
 
 
-class OpenAILintEngine(LintEngineABC):
+class OpenAILintEngine(BaseLintEngine):
     llm: Optional[BaseLLM] = None
     rule_classification_chain: LLMChain
     parse_chain: LLMChain

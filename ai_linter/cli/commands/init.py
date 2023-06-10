@@ -1,7 +1,7 @@
 import os
 import pathlib
 
-from ..settings import ConfigurationStorage
+from ..settings import configurationStorage
 from ..command import Command
 
 
@@ -27,10 +27,10 @@ class Init(Command):
         if not root_path.is_dir():
             raise ValueError(f"{root_abspath} isn't a directory")
 
-        if ConfigurationStorage.has_configuration(root_abspath):
+        if configurationStorage.has_configuration(root_abspath):
             raise RuntimeError("Project already initialized.")
 
-        configuration = ConfigurationStorage.get_configuration(root_abspath)
+        configuration = configurationStorage.get_configuration(root_abspath)
 
         configuration["extensions"] = input(
             "Inform the file extensions to index separated by comma(.py, .js):\n"
@@ -44,4 +44,4 @@ class Init(Command):
         if exclude:
             configuration["exclude"] = exclude
 
-        ConfigurationStorage.save_configuration(configuration, root_abspath)
+        configurationStorage.save_configuration(configuration, root_abspath)

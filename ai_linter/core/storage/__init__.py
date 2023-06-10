@@ -1,6 +1,6 @@
-from .repository_storage import RepositoryStorageABC, LocalRepositoryStorage
+from .repository_storage import BaseRepositoryStorage, LocalRepositoryStorage
 from .configuration_storage import (
-    ConfigurationStorageABC,
+    BaseConfigurationStorage,
     LocalConfigurationStorage,
     Configuration,
     Rule,

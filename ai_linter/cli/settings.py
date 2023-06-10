@@ -4,9 +4,8 @@ from ai_linter.core.storage import LocalConfigurationStorage
 from ai_linter.core.models import Repository
 from ai_linter.core.linter import Linter
 
-LintEngine = OpenAILintEngine()
-RepositoryStorage = LocalRepositoryStorage()
-ConfigurationStorage = LocalConfigurationStorage()
+lintEngine = OpenAILintEngine()
+repositoryStorage = LocalRepositoryStorage()
+configurationStorage = LocalConfigurationStorage()
 
-Repository.set_dependencies(RepositoryStorage=RepositoryStorage)
-Linter.set_dependencies(LintEngine=LintEngine, RepositoryStorage=RepositoryStorage)
+Linter.set_dependencies(lintEngine=lintEngine, repositoryStorage=repositoryStorage)
