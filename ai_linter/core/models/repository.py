@@ -22,6 +22,10 @@ class RepositoryFile:
     name: str
     parent: "RepositoryDirectory"
 
+    @property
+    def path(self):
+        return os.path.join(self.parent.path, self.name)
+
 
 @dataclass
 class RepositoryDirectory(Iterable):

@@ -3,7 +3,7 @@ import pathlib
 from glob import glob
 
 from ai_linter.core.linter import Linter
-from ai_linter.core.models import Repository
+from ai_linter.core.models import Repository, is_file
 from ai_linter.core.storage import Configuration
 from ai_linter.core.utils.list_tools import flat
 
@@ -28,34 +28,25 @@ class Run(Command):
 
     def run(self, args: Args):
         abspath = os.path.abspath(args.path)
-        configuration = ConfigurationStorage.get_configuration(abspath)
+        configuration = ConfigurationStorage.get_configuration(os.getcwd())
         api_key = configuration.get("OPENAI_API_KEY")
 
         if not configuration["rules"]:
             raise ValueError("rules missing on the .ai-linter.json")
-        
+
         if not api_key:
             raise ValueError("OPEN_API_KEY missing on the .ai-linter.json")
 
         linter = Linter(configuration)
-        repository = self.open(abspath, configuration)
-
         LintEngine.set_api_key(api_key)
-        linter.lint_by_repository(repository)
 
-    @staticmethod
-    def get_directory(relative_dirpath: str, repository: Repository):
-        root_path = pathlib.Path(repository.root.path)
-        dirpath = os.path.join(root_path.parent, relative_dirpath)
-
-        return repository.get_directory(dirpath)
-
-    @staticmethod
-    def get_exclude_paths(root_path: str, configuration: Configuration):
-        exclude = configuration.get("exclude", [])
-        paths_nested = [glob(p, recursive=True, root_dir=root_path) for p in exclude]
-
-        return [os.path.join(root_path, p) for p in flat(paths_nested)]
+        if os.path.isdir(abspath):
+            repository = self.open(abspath, configuration)
+            linter.lint_by_repository(repository)
+        elif os.path.isfile(abspath):
+            linter.lint_by_file(abspath)
+        else:
+            raise ValueError("path isn't a file or directory")
 
     def open(self, root_path: str, configuration: Configuration) -> Repository:
         repository = Repository(root_path)
@@ -74,3 +65,17 @@ class Run(Command):
                     repository.add_file(file_name, directory)
 
         return repository
+
+    @staticmethod
+    def get_directory(relative_dirpath: str, repository: Repository):
+        root_path = pathlib.Path(repository.root.path)
+        dirpath = os.path.join(root_path.parent, relative_dirpath)
+
+        return repository.get_directory(dirpath)
+
+    @staticmethod
+    def get_exclude_paths(root_path: str, configuration: Configuration):
+        exclude = configuration.get("exclude", [])
+        paths_nested = [glob(p, recursive=True, root_dir=root_path) for p in exclude]
+
+        return [os.path.join(root_path, p) for p in flat(paths_nested)]

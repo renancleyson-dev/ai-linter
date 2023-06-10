@@ -1,4 +1,19 @@
-__example_code = """\
+from typing import TypedDict, NotRequired
+
+ParseParameter = TypedDict(
+    "ParseParameter",
+    {
+        "chunk": str,
+        "type": str,
+        "line": str,
+        "start-column": str,
+        "end-column": str,
+        "observation": NotRequired[str],
+    },
+)
+
+
+__EXAMPLE_CODE = """\
  1  from typing import Sequence
  2
  3  from .commands.init import Init
@@ -16,7 +31,7 @@ __example_code = """\
 15          command.some_method()
 """
 
-__example_answer = """\
+__EXAMPLE_ANSWER = """\
 "chunk","type","line","start-column","end-column","observation"
 "Sequence","typing","1","20","28",
 "Init","class","3","28","32",
@@ -28,7 +43,7 @@ __example_answer = """\
 "command","variable","13","9","16",\
 """
 
-instruction_template = """\
+INSTRUCTION_TEMPLATE = """\
 You are AI Linter, an assistant for linting code with rules in English text.
 
 Each rule has a category. Your task is to extract relevant parameters of the category \
@@ -49,17 +64,17 @@ represented with the following table:
 | | | | |t|e|s|t| |=| |5|
 """
 
-input_template = """\
+INPUT_TEMPLATE = """\
 ```{programming_language}
 {chunk}
 ```\
 """
 
-examples = [
+EXAMPLES = [
     {
-        "question": input_template.format(
-            programming_language="python", chunk=__example_code
+        "question": INPUT_TEMPLATE.format(
+            programming_language="python", chunk=__EXAMPLE_CODE
         ),
-        "answer": __example_answer,
+        "answer": __EXAMPLE_ANSWER,
     },
 ]

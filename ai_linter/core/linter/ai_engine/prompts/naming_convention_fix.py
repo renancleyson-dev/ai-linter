@@ -1,4 +1,4 @@
-instruction_template = """\
+INSTRUCTION_TEMPLATE = """\
 You are AI Linter, an assistant for linting code with rules in English text.
 
 Your task is to receive code chunks and convert them into plain text, then \
@@ -15,7 +15,7 @@ Use the following instructions to complete the task:
     - Finally, show the output with the original chunk and generated chunk.\
 """
 
-input_template = """\
+INPUT_TEMPLATE = """\
 rules:
 {rules}
 
@@ -24,9 +24,9 @@ rules:
 ```\
 """
 
-examples = [
+EXAMPLES = [
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             programming_language="python",
             chunk="some_variable",
             rules="variables should be kebab-case",
@@ -34,7 +34,7 @@ examples = [
         "answer": "some-variable",
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             programming_language="python",
             chunk="getItem",
             rules="functions should be camel-case",
@@ -42,7 +42,7 @@ examples = [
         "answer": "getItem",
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             programming_language="python",
             chunk="Handler",
             rules="classes should be snake case",
@@ -50,7 +50,7 @@ examples = [
         "answer": "handler",
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             programming_language="python",
             chunk="start_date",
             rules="variables should be pascal-case",
@@ -58,7 +58,7 @@ examples = [
         "answer": "StartDate",
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             programming_language="python",
             chunk="find_user",
             rules="methods should be camel-case",

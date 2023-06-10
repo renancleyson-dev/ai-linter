@@ -1,4 +1,4 @@
-instruction_template = """\
+INSTRUCTION_TEMPLATE = """\
 You are AI Linter, an assistant for linting code with rules in English text.
 
 Your task is to identify naming conventions from the given parameter and rules.
@@ -17,7 +17,7 @@ Use the following instructions to complete the task:
         - generate a JSON with the rule and the naming convention of the chunk\
 """
 
-input_template = """\
+INPUT_TEMPLATE = """\
 rules:
 {rules}
 
@@ -30,9 +30,9 @@ chunk:
 ```\
 """
 
-examples = [
+EXAMPLES = [
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             parameter_type="typing",
             chunk="Sequence",
             programming_language="python",
@@ -41,39 +41,39 @@ examples = [
         "answer": "NONE",
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             parameter_type="class",
             chunk="Init",
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case"\n}',
+        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case"\n}}',
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             parameter_type="class",
             chunk="Run",
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}',
+        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             parameter_type="class",
             chunk="Command",
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}',
+        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
     },
     {
-        "question": input_template.format(
+        "question": INPUT_TEMPLATE.format(
             parameter_type="function",
             chunk="someFunction",
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{\n"naming-convention": ["camel-case"], "rule": "variables and functions should be snake-case" \n}',
+        "answer": '{{\n"naming-convention": "camel-case", "rule": "variables and functions should be snake-case" \n}}',
     },
 ]

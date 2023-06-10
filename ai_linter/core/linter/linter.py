@@ -12,6 +12,7 @@ class Linter:
 
     def __init__(self, configuration: Configuration):
         self.configuration = configuration
+        self.conditions = [rule["condition"] for rule in self.configuration["rules"]]
 
     @classmethod
     def set_dependencies(
@@ -22,23 +23,29 @@ class Linter:
         cls.LintEngine = LintEngine
         cls.RepositoryStorage = RepositoryStorage
 
-    def lint_by_file(self, chunk: Chunk, rules: list[str]):
-        return self.LintEngine.lint(chunks=[chunk], rules=rules)
+    def lint_by_file(self, file_path: str):
+        text = self.RepositoryStorage.get_file_data(file_path)
+
+        if not text:
+            raise FileNotFoundError
+
+        chunk: Chunk = {
+            "file": file_path,
+            "text": text,
+        }
+
+        return self.LintEngine.lint(chunks=[chunk], rules=self.conditions)
 
     def lint_by_repository(self, repository: Repository):
         chunks: list[Chunk] = []
-        rules = [rule["condition"] for rule in self.configuration["rules"]]
 
         for directory in repository:
             for child in directory.children:
-                if not is_file(child):
-                    continue
+                if is_file(child):
+                    text = self.RepositoryStorage.get_file_data(child.path)
 
-                path = os.path.join(child.parent.path, child.name)
-                text = self.RepositoryStorage.get_file_data(path)
+                    if text:
+                        chunk: Chunk = {"file": child.path, "text": text}
+                        chunks.append(chunk)
 
-                if text:
-                    chunk: Chunk = {"file": path, "text": text}
-                    chunks.append(chunk)
-
-        return self.LintEngine.lint(chunks=chunks, rules=rules)
+        return self.LintEngine.lint(chunks=chunks, rules=self.conditions)
