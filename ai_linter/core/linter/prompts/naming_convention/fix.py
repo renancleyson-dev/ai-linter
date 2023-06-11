@@ -1,3 +1,7 @@
+from typing import Any
+
+from ..base import Prompt, Example
+
 INSTRUCTION_TEMPLATE = """\
 You are AI Linter, an assistant for linting code with rules in English text.
 
@@ -24,7 +28,7 @@ rules:
 ```\
 """
 
-EXAMPLES = [
+EXAMPLES: list[Example] = [
     {
         "question": INPUT_TEMPLATE.format(
             programming_language="python",
@@ -66,3 +70,10 @@ EXAMPLES = [
         "answer": "findUser",
     },
 ]
+
+fix_prompt = Prompt[Any](
+    input=INPUT_TEMPLATE,
+    instruction=INSTRUCTION_TEMPLATE,
+    examples=EXAMPLES,
+    parse=lambda value: value
+)

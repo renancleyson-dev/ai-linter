@@ -42,11 +42,11 @@ class Run(Command):
 
         if os.path.isdir(abspath):
             repository = self.open(abspath, configuration)
-            linter.lint_by_repository(repository)
+            print(linter.lint_by_repository(repository))
         elif os.path.isfile(abspath):
-            linter.lint_by_file(abspath)
+            print(linter.lint_by_file(abspath))
         else:
-            raise ValueError("path isn't a file or directory")
+            raise ValueError("No such file or directory")
 
     def open(self, root_path: str, configuration: Configuration) -> Repository:
         repository = Repository(root_path)

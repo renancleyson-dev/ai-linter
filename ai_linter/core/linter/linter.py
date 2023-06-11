@@ -33,7 +33,7 @@ class Linter:
             "text": text,
         }
 
-        return self.lintEngine.lint(chunks=[chunk], rules=self.conditions)
+        return self.lintEngine.run(chunks=[chunk], rules=self.conditions)
 
     def lint_by_repository(self, repository: Repository):
         chunks: list[Chunk] = []
@@ -47,4 +47,4 @@ class Linter:
                         chunk: Chunk = {"file": child.path, "text": text}
                         chunks.append(chunk)
 
-        return self.lintEngine.lint(chunks=chunks, rules=self.conditions)
+        return self.lintEngine.run(chunks=chunks, rules=self.conditions)

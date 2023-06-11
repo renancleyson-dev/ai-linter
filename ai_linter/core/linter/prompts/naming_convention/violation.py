@@ -1,4 +1,15 @@
-INSTRUCTION_TEMPLATE = """\
+import json
+from typing import TypedDict
+
+from ..base import Prompt, Example
+
+
+Violation = TypedDict("Violation", {"convention": str, "rule": str})
+
+NO_VIOLATION = "NONE"
+
+
+INSTRUCTION_TEMPLATE = f"""\
 You are AI Linter, an assistant for linting code with rules in English text.
 
 Your task is to identify naming conventions from the given parameter and rules.
@@ -11,7 +22,7 @@ The parameters are code chunks extracted from a source code. They are grouped by
 
 Use the following instructions to complete the task:
     - Search for rules that include the parameter's type
-    - If no rule was found, skip the next step and show the output "NONE"
+    - If no rule was found, skip the next step and show the output {NO_VIOLATION}
     - For each rule do the following:
         - Identify the chunk's naming convention
         - generate a JSON with the rule and the naming convention of the chunk\
@@ -30,7 +41,7 @@ chunk:
 ```\
 """
 
-EXAMPLES = [
+EXAMPLES: list[Example] = [
     {
         "question": INPUT_TEMPLATE.format(
             parameter_type="typing",
@@ -47,7 +58,7 @@ EXAMPLES = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case"\n}}',
+        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case"\n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -56,7 +67,7 @@ EXAMPLES = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
+        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -65,7 +76,7 @@ EXAMPLES = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"naming-convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
+        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -74,6 +85,21 @@ EXAMPLES = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"naming-convention": "camel-case", "rule": "variables and functions should be snake-case" \n}}',
+        "answer": '{{\n"convention": "camel-case", "rule": "variables and functions should be snake-case" \n}}',
     },
 ]
+
+
+def parse(value: str):
+    if value == NO_VIOLATION:
+        return None
+
+    return json.loads(value)
+
+
+violation_prompt = Prompt[Violation | None](
+    input=INPUT_TEMPLATE,
+    instruction=INSTRUCTION_TEMPLATE,
+    examples=EXAMPLES,
+    parse=parse,
+)

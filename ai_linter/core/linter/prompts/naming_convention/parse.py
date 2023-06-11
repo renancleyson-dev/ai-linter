@@ -1,4 +1,8 @@
-from typing import TypedDict, NotRequired
+import csv
+from typing import cast, TypedDict, NotRequired
+
+from ..base import Prompt, Example
+
 
 ParseParameter = TypedDict(
     "ParseParameter",
@@ -12,8 +16,7 @@ ParseParameter = TypedDict(
     },
 )
 
-
-__EXAMPLE_CODE = """\
+EXAMPLE_CODE = """\
  1  from typing import Sequence
  2
  3  from .commands.init import Init
@@ -31,7 +34,7 @@ __EXAMPLE_CODE = """\
 15          command.some_method()
 """
 
-__EXAMPLE_ANSWER = """\
+EXAMPLE_ANSWER = """\
 "chunk","type","line","start-column","end-column","observation"
 "Sequence","typing","1","20","28",
 "Init","class","3","28","32",
@@ -70,11 +73,23 @@ INPUT_TEMPLATE = """\
 ```\
 """
 
-EXAMPLES = [
+EXAMPLES: list[Example] = [
     {
         "question": INPUT_TEMPLATE.format(
-            programming_language="python", chunk=__EXAMPLE_CODE
+            programming_language="python", chunk=EXAMPLE_CODE
         ),
-        "answer": __EXAMPLE_ANSWER,
+        "answer": EXAMPLE_ANSWER,
     },
 ]
+
+
+def parse(value: str):
+    return cast(list[ParseParameter], list(csv.DictReader(value.split("\n"))))
+
+
+parse_prompt = Prompt[list[ParseParameter]](
+    input=INPUT_TEMPLATE,
+    instruction=INSTRUCTION_TEMPLATE,
+    examples=EXAMPLES,
+    parse=parse,
+)
