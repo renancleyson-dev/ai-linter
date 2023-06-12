@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Optional, TypedDict, Callable, Generic, TypeVar, NotRequired
-from enum import Enum
+from enum import StrEnum
 
 TransformOutput = TypeVar("TransformOutput")
 
 
-class Rules(str, Enum):
+class Rules(StrEnum):
     NAMING_CONVENTION = "naming-convention"
     FORMATTING = "formatting"
     BEST_PRACTICE = "best-practice"

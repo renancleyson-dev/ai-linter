@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from typing import TypedDict, Optional
 from langchain.llms.base import BaseLLM
@@ -26,22 +27,25 @@ class OpenAILintEngine(BaseLintEngine):
     def set_api_key(self, api_key: str):
         self.llm = FakeListLLM(responses=self.FAKE_RESPONSE)
 
-    def run(self, chunks, rules):
+    async def arun(self, chunks: list[Chunk], rules: list[str]):
         if not (self.llm):
             raise ValueError("OpenAI API key is required")
 
         errors: dict[str, list[Error]] = {chunk["file"]: [] for chunk in chunks}
 
-        labeled_rules = handle_rules_classification(self.llm, rules)
+        labeled_rules = await handle_rules_classification(self.llm, rules)
         for chunk in chunks:
             naming_convention_rules = labeled_rules[Rules.NAMING_CONVENTION]
-            naming_convention_result = handle_naming_convention(
+            naming_convention_result = await handle_naming_convention(
                 llm=self.llm, rules=naming_convention_rules, chunk=chunk["text"]
             )
 
             errors[chunk["file"]].extend(naming_convention_result)
 
         return errors
+
+    def run(self, chunks, rules):
+        return asyncio.run(self.arun(chunks, rules))
 
     MODEL = "gpt-3.5-turbo"
 

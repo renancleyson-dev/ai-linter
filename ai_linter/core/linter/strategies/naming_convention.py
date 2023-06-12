@@ -1,9 +1,13 @@
+import asyncio
+from typing import Coroutine, Any
+
 from langchain.llms.base import BaseLLM
+from langchain.chains import LLMChain
 
 from ..prompts.base import Error
 from ..prompts.naming_convention.fix import fix_prompt
-from ..prompts.naming_convention.parse import parse_prompt
-from ..prompts.naming_convention.violation import violation_prompt, Violation
+from ..prompts.naming_convention.parse import parse_prompt, ParseParameter
+from ..prompts.naming_convention.violation import violation_prompt
 from ..adapters.langchain import create_chain_from_prompt
 
 
@@ -15,47 +19,64 @@ def format_lines(chunk: str):
     return "\n".join(lines)
 
 
-def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
+async def handle_parameter(
+    fix_chain: LLMChain,
+    violation_chain: LLMChain,
+    rules: str,
+    programming_language: str,
+    parameter: ParseParameter,
+):
+    fix = await fix_chain.arun(
+        rules=rules, programming_language=programming_language, chunk=parameter["chunk"]
+    )
+    print(fix)
+
+    if fix != parameter["chunk"]:
+        violation = violation_prompt.parse(
+            await violation_chain.arun(
+                programming_language=programming_language,
+                chunk=parameter["chunk"],
+                rules=rules,
+                parameter_type=parameter["type"],
+            )
+        )
+        print(violation)
+
+        if violation:
+            error: Error = {
+                "message": violation["rule"],
+                "line": int(parameter["line"]),
+                "start_column": int(parameter["start-column"]),
+                "end_column": int(parameter["end-column"]),
+                "fix": fix,
+            }
+
+            return error
+
+
+async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
     parse_chain = create_chain_from_prompt(llm, parse_prompt)
     fix_chain = create_chain_from_prompt(llm, fix_prompt)
     violation_chain = create_chain_from_prompt(llm, violation_prompt)
 
-    errors: list[Error] = []
     joined_rules = "\n".join(rules)
 
     parameters = parse_prompt.parse(
-        parse_chain.run(
-            programming_language="python",
-            chunk=format_lines(chunk),
-        )
+        await parse_chain.arun(programming_language="python", chunk=format_lines(chunk))
     )
+    print(parameters)
 
+    coro_errors: list[Coroutine[Any, Any, Error | None]] = []
     for parameter in parameters:
-        fix = fix_chain.run(
-            rules=joined_rules,
-            programming_language="python",
-            chunk=parameter["chunk"],
+        coro_errors.append(
+            handle_parameter(
+                fix_chain=fix_chain,
+                violation_chain=violation_chain,
+                rules=joined_rules,
+                programming_language="python",
+                parameter=parameter,
+            )
         )
 
-        if fix != parameter["chunk"]:
-            violation = violation_prompt.parse(
-                violation_chain.run(
-                    programming_language="python",
-                    chunk=parameter["chunk"],
-                    rules=joined_rules,
-                    parameter_type=parameter["type"],
-                )
-            )
-
-            if violation:
-                error: Error = {
-                    "message": violation["rule"],
-                    "line": int(parameter["line"]),
-                    "start_column": int(parameter["start-column"]),
-                    "end_column": int(parameter["end-column"]),
-                    "fix": fix
-                }
-
-                errors.append(error)
-
-    return errors
+    result: list[Error | None] = await asyncio.gather(*coro_errors)
+    return [item for item in result if item]
