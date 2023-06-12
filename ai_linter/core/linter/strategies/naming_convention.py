@@ -62,7 +62,10 @@ async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
     joined_rules = "\n".join(rules)
 
     parameters = parse_prompt.parse(
-        await parse_chain.arun(programming_language="python", chunk=format_lines(chunk))
+        await parse_chain.arun(
+            programming_language="python",
+            chunk=format_lines(chunk).replace("{", "{{").replace("}", "}}"),
+        )
     )
     print(parameters)
 

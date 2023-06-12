@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import TypedDict, Optional
 from langchain.llms.base import BaseLLM
 from langchain.llms import OpenAI
-from langchain.llms.fake import FakeListLLM
 
 from ..prompts.base import Error, Rules
 from ..strategies.naming_convention import handle_naming_convention
@@ -25,7 +24,7 @@ class OpenAILintEngine(BaseLintEngine):
     llm: Optional[BaseLLM] = None
 
     def set_api_key(self, api_key: str):
-        self.llm = FakeListLLM(responses=self.FAKE_RESPONSE)
+        self.llm = OpenAI(openai_api_key=api_key, model=self.MODEL, temperature=0, top_p=0, max_tokens=2000) # type: ignore
 
     async def arun(self, chunks: list[Chunk], rules: list[str]):
         if not (self.llm):
@@ -47,11 +46,4 @@ class OpenAILintEngine(BaseLintEngine):
     def run(self, chunks, rules):
         return asyncio.run(self.arun(chunks, rules))
 
-    MODEL = "gpt-3.5-turbo"
-
-    FAKE_RESPONSE = [
-        Rules.NAMING_CONVENTION,
-        '"chunk","type","line","start-column","end-column","observation"\n"some_variable","variable","1","20","28",',
-        "some-variable",
-        f'{{\n"{Rules.NAMING_CONVENTION}": "pascal-case", "rule": "classes should be kebab-case"\n}}',
-    ]
+    MODEL = "text-davinci-003"
