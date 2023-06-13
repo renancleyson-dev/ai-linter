@@ -69,9 +69,9 @@ async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
     )
     print(parameters)
 
-    coro_errors: list[Coroutine[Any, Any, Error | None]] = []
+    coros: list[Coroutine[Any, Any, Error | None]] = []
     for parameter in parameters:
-        coro_errors.append(
+        coros.append(
             handle_parameter(
                 fix_chain=fix_chain,
                 violation_chain=violation_chain,
@@ -81,5 +81,5 @@ async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
             )
         )
 
-    result: list[Error | None] = await asyncio.gather(*coro_errors)
+    result: list[Error | None] = await asyncio.gather(*coros)
     return [item for item in result if item]

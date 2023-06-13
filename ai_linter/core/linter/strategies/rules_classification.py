@@ -1,4 +1,3 @@
-import asyncio
 from langchain.llms.base import BaseLLM
 
 from ..prompts.rules_classification import rule_classification_prompt

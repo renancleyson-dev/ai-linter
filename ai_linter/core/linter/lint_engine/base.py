@@ -1,12 +1,9 @@
-import asyncio
 from abc import ABC, abstractmethod
-from typing import TypedDict, Optional, Final
-from langchain.llms.base import BaseLLM
-from langchain.llms import OpenAI
+from typing import TypedDict, Any
 
 from ..prompts.base import Error, Rules
-from ..strategies.naming_convention import handle_naming_convention
 from ..strategies.rules_classification import handle_rules_classification
+from ..strategies.naming_convention import  handle_naming_convention
 
 
 class Chunk(TypedDict):
@@ -15,26 +12,11 @@ class Chunk(TypedDict):
 
 
 class BaseLintEngine(ABC):
-    @abstractmethod
-    def run(self, chunks: list[Chunk], rules: list[str]) -> dict[str, list[Error]]:
-        pass
-
-
-class OpenAILintEngine(BaseLintEngine):
-    llm: Optional[BaseLLM] = None
-
-    def set_api_key(self, api_key: str):
-        self.llm = OpenAI(
-            openai_api_key=api_key,
-            model=self.MODEL,
-            temperature=0,
-            top_p=0,
-            max_tokens=2000,
-        )  # type: ignore
+    llm: Any
 
     async def arun(self, chunks: list[Chunk], rules: list[str]):
         if not (self.llm):
-            raise ValueError("OpenAI API key is required")
+            raise ValueError("No LLM was initialized")
 
         errors: dict[str, list[Error]] = {chunk["file"]: [] for chunk in chunks}
 
@@ -49,7 +31,6 @@ class OpenAILintEngine(BaseLintEngine):
 
         return errors
 
-    def run(self, chunks, rules):
-        return asyncio.run(self.arun(chunks, rules))
-
-    MODEL: Final = "text-davinci-003"
+    @abstractmethod
+    def run(self, chunks: list[Chunk], rules: list[str]) -> dict[str, list[Error]]:
+        pass

@@ -1,7 +1,6 @@
 import os
-import pathlib
 
-from ..settings import configurationStorage
+from ..settings import configuration_storage
 from ..command import Command
 
 
@@ -21,16 +20,15 @@ class Init(Command):
         parser.set_defaults(func=self.run)
 
     def run(self, args: Args):
-        root_path = pathlib.Path(args.path)
-        root_abspath = str(root_path.resolve())
+        root_abspath = os.path.abspath(args.path)
 
-        if not root_path.is_dir():
+        if not os.path.isdir(root_abspath):
             raise ValueError(f"{root_abspath} isn't a directory")
 
-        if configurationStorage.has_configuration(root_abspath):
+        if configuration_storage.has_configuration(root_abspath):
             raise RuntimeError("Project already initialized.")
 
-        configuration = configurationStorage.get_configuration(root_abspath)
+        configuration = configuration_storage.get_configuration(root_abspath)
 
         configuration["extensions"] = input(
             "Inform the file extensions to index separated by comma(.py, .js):\n"
@@ -44,4 +42,4 @@ class Init(Command):
         if exclude:
             configuration["exclude"] = exclude
 
-        configurationStorage.save_configuration(configuration, root_abspath)
+        configuration_storage.save_configuration(configuration, root_abspath)

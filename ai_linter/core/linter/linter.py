@@ -1,13 +1,15 @@
 from typing import ClassVar
 
-from ai_linter.core.models import Repository, is_file
-from ai_linter.core.storage import BaseRepositoryStorage, Configuration
-from .ai_engine import BaseLintEngine, Chunk
+from ai_linter.core.models.repository import Repository, is_file
+from ai_linter.core.storage import BaseRepositoryStorage
+from ai_linter.core.storage.configuration_storage import Configuration
+
+from .lint_engine.base import BaseLintEngine, Chunk
 
 
 class Linter:
-    repositoryStorage: ClassVar[BaseRepositoryStorage]
-    lintEngine: ClassVar[BaseLintEngine]
+    repository_storage: ClassVar[BaseRepositoryStorage]
+    lint_engine: ClassVar[BaseLintEngine]
 
     def __init__(self, configuration: Configuration):
         self.configuration = configuration
@@ -16,24 +18,24 @@ class Linter:
     @classmethod
     def set_dependencies(
         cls,
-        lintEngine: BaseLintEngine,
-        repositoryStorage: BaseRepositoryStorage,
+        lint_engine: BaseLintEngine,
+        repository_storage: BaseRepositoryStorage,
     ):
-        cls.lintEngine = lintEngine
-        cls.repositoryStorage = repositoryStorage
+        cls.lint_engine = lint_engine
+        cls.repository_storage = repository_storage
 
     def lint_by_file(self, file_path: str):
-        text = self.repositoryStorage.get_file_data(file_path)
+        text = self.repository_storage.get_file_data(file_path)
 
         if not text:
-            raise FileNotFoundError
+            raise RuntimeError(f"The file {file_path} is empty")
 
         chunk: Chunk = {
             "file": file_path,
             "text": text,
         }
 
-        return self.lintEngine.run(chunks=[chunk], rules=self.conditions)
+        return self.lint_engine.run(chunks=[chunk], rules=self.conditions)
 
     def lint_by_repository(self, repository: Repository):
         chunks: list[Chunk] = []
@@ -41,10 +43,10 @@ class Linter:
         for directory in repository:
             for child in directory.children:
                 if is_file(child):
-                    text = self.repositoryStorage.get_file_data(child.path)
+                    text = self.repository_storage.get_file_data(child.path)
 
                     if text:
                         chunk: Chunk = {"file": child.path, "text": text}
                         chunks.append(chunk)
 
-        return self.lintEngine.run(chunks=chunks, rules=self.conditions)
+        return self.lint_engine.run(chunks=chunks, rules=self.conditions)

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import TypedDict, NotRequired
 import json
 import os
-import pathlib
 
 
 class Rule(TypedDict):
@@ -43,9 +42,7 @@ class LocalConfigurationStorage(BaseConfigurationStorage):
     DEFAULT_CONFIGURATION: Configuration = {"rules": [], "extensions": []}
 
     def has_configuration(self, source):
-        path = pathlib.Path(os.path.join(source, self.base_name))
-
-        return path.exists()
+        return os.path.exists(os.path.join(source, self.base_name))
 
     def get_configuration(self, source):
         if not self.has_configuration(source):
