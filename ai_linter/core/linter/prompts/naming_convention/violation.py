@@ -49,7 +49,7 @@ EXAMPLES: list[Example] = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": "NONE",
+        "answer": NO_VIOLATION,
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -58,7 +58,7 @@ EXAMPLES: list[Example] = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case"\n}}',
+        "answer": '{{\n  "convention": "pascal-case",\n  "rule": "classes should be kebab-case"\n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -67,7 +67,7 @@ EXAMPLES: list[Example] = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
+        "answer": '{{\n  "convention": "pascal-case",\n  "rule": "classes should be kebab-case" \n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -76,7 +76,7 @@ EXAMPLES: list[Example] = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"convention": "pascal-case", "rule": "classes should be kebab-case" \n}}',
+        "answer": '{{\n  "convention": "pascal-case",\n  "rule": "classes should be kebab-case" \n}}',
     },
     {
         "question": INPUT_TEMPLATE.format(
@@ -85,7 +85,7 @@ EXAMPLES: list[Example] = [
             programming_language="python",
             rules="variables and functions should be snake-case\nclasses should be kebab-case",
         ),
-        "answer": '{{\n"convention": "camel-case", "rule": "variables and functions should be snake-case" \n}}',
+        "answer": '{{\n  "convention": "camel-case",\n  "rule": "variables and functions should be snake-case" \n}}',
     },
 ]
 

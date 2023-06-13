@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Final
 from langchain.llms.base import BaseLLM
 from langchain.llms import OpenAI
 
@@ -24,7 +24,13 @@ class OpenAILintEngine(BaseLintEngine):
     llm: Optional[BaseLLM] = None
 
     def set_api_key(self, api_key: str):
-        self.llm = OpenAI(openai_api_key=api_key, model=self.MODEL, temperature=0, top_p=0, max_tokens=2000) # type: ignore
+        self.llm = OpenAI(
+            openai_api_key=api_key,
+            model=self.MODEL,
+            temperature=0,
+            top_p=0,
+            max_tokens=2000,
+        )  # type: ignore
 
     async def arun(self, chunks: list[Chunk], rules: list[str]):
         if not (self.llm):
@@ -46,4 +52,4 @@ class OpenAILintEngine(BaseLintEngine):
     def run(self, chunks, rules):
         return asyncio.run(self.arun(chunks, rules))
 
-    MODEL = "text-davinci-003"
+    MODEL: Final = "text-davinci-003"

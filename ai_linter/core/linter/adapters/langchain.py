@@ -6,9 +6,29 @@ from langchain.prompts.prompt import PromptTemplate
 
 from ..prompts.base import Prompt
 
+EXAMPLE_TEMPLATE = """\
+USER:
+{question}
 
-ENTRY_BASE_TEMPLATE = "USER:\n{0}\n\nASSISTANT:\n"
-EXAMPLE_TEMPLATE = "USER:\n{question}\n\nASSISTANT:\n{answer}"
+ASSISTANT:
+{answer}\
+"""
+
+PREFIX_TEMPLATE = """\
+{instruction}
+
+=========== EXAMPLES ===========
+"""
+
+SUFFIX_TEMPLATE = """
+
+=========== END OF EXAMPLES ===========
+
+USER:
+{input}
+
+ASSISTANT:
+"""
 
 
 def create_chain_from_prompt(
@@ -21,13 +41,16 @@ def create_chain_from_prompt(
 
     example_prompt = PromptTemplate.from_template(EXAMPLE_TEMPLATE)
     entry_prompt = PromptTemplate.from_template(
-        ENTRY_BASE_TEMPLATE.format(prompt.input)
+        SUFFIX_TEMPLATE.format(input=prompt.input)
     )
 
     input_variables.extend(entry_prompt.input_variables)
 
     if prompt.instruction:
-        instruction_prompt = PromptTemplate.from_template(prompt.instruction)
+        instruction_prompt = PromptTemplate.from_template(
+            PREFIX_TEMPLATE.format(instruction=prompt.instruction)
+        )
+
         input_variables.extend(instruction_prompt.input_variables)
 
     return LLMChain(
