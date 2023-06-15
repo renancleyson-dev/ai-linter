@@ -79,11 +79,11 @@ EXAMPLES: list[Example] = [
 ]
 
 
-def parse(value: str):
+def parse(value: str) -> Rules:
     return EnumOutputParser(enum=Rules).parse(value)
 
 
-rule_classification_prompt = Prompt[Rules](
+rule_classification_prompt = Prompt(
     input=INPUT_TEMPLATE,
     instruction=INSTRUCTION_TEMPLATE,
     examples=EXAMPLES,

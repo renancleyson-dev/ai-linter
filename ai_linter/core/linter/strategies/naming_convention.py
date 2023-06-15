@@ -2,6 +2,7 @@ import asyncio
 from typing import Coroutine, Any
 
 from langchain.llms.base import BaseLLM
+from langchain.llms import OpenAIChat
 from langchain.chains import LLMChain
 
 from ..prompts.base import Error
@@ -11,12 +12,16 @@ from ..prompts.naming_convention.violation import violation_prompt
 from ..adapters.langchain import create_chain_from_prompt
 
 
-def format_lines(chunk: str):
+def enumarate_lines(chunk: str):
     lines = chunk.split("\n")
     spacing = len(str(len(lines)))
     lines = [f"{i + 1:{spacing}d}  {lines[i]}" for i in range(len(lines))]
 
     return "\n".join(lines)
+
+
+def escape_code(chunk: str):
+    return chunk.replace("{", "{{").replace("}", "}}")
 
 
 async def handle_parameter(
@@ -55,16 +60,18 @@ async def handle_parameter(
 
 
 async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
-    parse_chain = create_chain_from_prompt(llm, parse_prompt)
-    fix_chain = create_chain_from_prompt(llm, fix_prompt)
-    violation_chain = create_chain_from_prompt(llm, violation_prompt)
+    is_chat = isinstance(llm, OpenAIChat)
+
+    parse_chain = create_chain_from_prompt(llm, parse_prompt, is_chat)
+    fix_chain = create_chain_from_prompt(llm, fix_prompt, is_chat)
+    violation_chain = create_chain_from_prompt(llm, violation_prompt, is_chat)
 
     joined_rules = "\n".join(rules)
 
     parameters = parse_prompt.parse(
         await parse_chain.arun(
             programming_language="python",
-            chunk=format_lines(chunk).replace("{", "{{").replace("}", "}}"),
+            chunk=escape_code(enumarate_lines(chunk)),
         )
     )
     print(parameters)

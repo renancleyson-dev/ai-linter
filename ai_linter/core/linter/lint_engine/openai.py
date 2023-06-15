@@ -1,23 +1,24 @@
 import asyncio
 from typing import Optional, Final
-from langchain.llms import OpenAI
+from langchain.llms.base import BaseLLM
+from langchain.chat_models import ChatOpenAI
 
 from .base import BaseLintEngine
 
 
 class OpenAILintEngine(BaseLintEngine):
-    MODEL: Final = "gpt-3.5-turbo"
-    llm: Optional[OpenAI] = None
+    MODEL: Final = "gpt-3.5-turbo-0613"
+    llm: Optional[BaseLLM] = None
 
     def set_api_key(self, api_key: str):
-        self.llm = OpenAI(
+        self.llm = ChatOpenAI(
             openai_api_key=api_key,
             model=self.MODEL,
+            temperature=0,
+            max_tokens=2000,
             model_kwargs={
-                "temperature": 0,
-                "top_p": 0,
-                "max_tokens": 2000,
-            },
+                "top_p": 0
+            }
         )  # type: ignore
 
     def run(self, chunks, rules):

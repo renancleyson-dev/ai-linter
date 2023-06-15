@@ -28,12 +28,6 @@ class Error(TypedDict):
 @dataclass
 class Prompt(Generic[TransformOutput]):
     input: str
-
-    """
-    Adding a parameter for the Transformer is required til PEP 696 is implemented
-    in mypy.
-    """
     parse: Callable[[str], TransformOutput]
-
     instruction: Optional[str] = None
     examples: list[Example] = field(default_factory=list)

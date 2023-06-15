@@ -1,5 +1,3 @@
-from typing import Any
-
 from ..base import Prompt, Example
 
 INSTRUCTION_TEMPLATE = """\
@@ -71,7 +69,7 @@ EXAMPLES: list[Example] = [
     },
 ]
 
-fix_prompt = Prompt[Any](
+fix_prompt = Prompt(
     input=INPUT_TEMPLATE,
     instruction=INSTRUCTION_TEMPLATE,
     examples=EXAMPLES,

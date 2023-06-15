@@ -90,14 +90,14 @@ EXAMPLES: list[Example] = [
 ]
 
 
-def parse(value: str):
+def parse(value: str) -> Violation | None:
     if value == NO_VIOLATION:
         return None
 
     return json.loads(value)
 
 
-violation_prompt = Prompt[Violation | None](
+violation_prompt = Prompt(
     input=INPUT_TEMPLATE,
     instruction=INSTRUCTION_TEMPLATE,
     examples=EXAMPLES,

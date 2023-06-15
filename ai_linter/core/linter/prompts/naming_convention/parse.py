@@ -83,11 +83,11 @@ EXAMPLES: list[Example] = [
 ]
 
 
-def parse(value: str):
+def parse(value: str) -> list[ParseParameter]:
     return cast(list[ParseParameter], list(csv.DictReader(value.split("\n"))))
 
 
-parse_prompt = Prompt[list[ParseParameter]](
+parse_prompt = Prompt(
     input=INPUT_TEMPLATE,
     instruction=INSTRUCTION_TEMPLATE,
     examples=EXAMPLES,
