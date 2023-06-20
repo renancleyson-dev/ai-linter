@@ -1,92 +1,115 @@
 import asyncio
 from typing import Coroutine, Any
-
+from langchain.chat_models import ChatOpenAI
 from langchain.llms.base import BaseLLM
-from langchain.llms import OpenAIChat
 from langchain.chains import LLMChain
+from langchain.agents import AgentType, AgentExecutor
 
 from ..prompts.base import Error
+from ..prompts.group_rules_by_target import group_rules_prompt
 from ..prompts.naming_convention.fix import fix_prompt
-from ..prompts.naming_convention.parse import parse_prompt, ParseParameter
 from ..prompts.naming_convention.violation import violation_prompt
-from ..adapters.langchain import create_chain_from_prompt
+from ..adapters.langchain.code_search import ParseSearch
+from ..adapters.langchain import create_chain_from_prompt, create_code_search_agent
+from ..code_search import create_code_search, SupportedLanguages
 
 
-def enumarate_lines(chunk: str):
-    lines = chunk.split("\n")
-    spacing = len(str(len(lines)))
-    lines = [f"{i + 1:{spacing}d}  {lines[i]}" for i in range(len(lines))]
+class NamingConventionStrategy:
+    llm: BaseLLM
+    group_rules_chain: LLMChain
+    fix_chain: LLMChain
+    violation_chain: LLMChain
+    code_search_agent: AgentExecutor
+    parse_search_output: ParseSearch
 
-    return "\n".join(lines)
+    def __init__(self, llm: BaseLLM):
+        is_chat = isinstance(llm, ChatOpenAI)
 
+        self.llm = llm
+        self.fix_chain = create_chain_from_prompt(
+            llm=llm, prompt=fix_prompt, is_chat=is_chat
+        )
+        self.violation_chain = create_chain_from_prompt(
+            llm=llm, prompt=violation_prompt, is_chat=is_chat
+        )
 
-def escape_code(chunk: str):
-    return chunk.replace("{", "{{").replace("}", "}}")
+        self.group_rules_chain = create_chain_from_prompt(
+            llm=llm, prompt=group_rules_prompt, is_chat=is_chat
+        )
 
+    def run(
+        self, chunk: str, rules: list[str], programming_language: SupportedLanguages
+    ):
+        asyncio.run(
+            self.arun(
+                chunk=chunk, rules=rules, programming_language=programming_language
+            )
+        )
 
-async def handle_parameter(
-    fix_chain: LLMChain,
-    violation_chain: LLMChain,
-    rules: str,
-    programming_language: str,
-    parameter: ParseParameter,
-):
-    fix = await fix_chain.arun(
-        rules=rules, programming_language=programming_language, chunk=parameter["chunk"]
-    )
-    print(fix)
+    async def arun(
+        self, chunk: str, rules: list[str], programming_language: SupportedLanguages
+    ):
+        coros: list[Coroutine[Any, Any, Error | None]] = []
 
-    if fix != parameter["chunk"]:
-        violation = violation_prompt.parse(
-            await violation_chain.arun(
+        code_search = create_code_search(
+            chunk=chunk, programming_language=programming_language
+        )
+
+        self.code_search_agent, self.parse_search_output = create_code_search_agent(
+            code_search=code_search,
+            llm=self.llm,
+            agent_type=AgentType.OPENAI_FUNCTIONS,
+        )
+
+        grouped_rules = group_rules_prompt.parse(
+            await self.group_rules_chain.arun(rules="\n".join(rules))
+        )
+
+        for target, rules in grouped_rules.items():
+            coros.append(
+                self._handle_target(
+                    target=target,
+                    rules="\n".join(rules),
+                    programming_language=programming_language,
+                )
+            )
+
+        result: list[Error | None] = await asyncio.gather(*coros)
+        return [item for item in result if item]
+
+    async def _handle_target(
+        self,
+        target: str,
+        rules: str,
+        programming_language: SupportedLanguages,
+    ):
+        PROMPT = f"Show me code related to {target}"
+        parameters = self.parse_search_output(self.code_search_agent.run(PROMPT))
+
+        for parameter in parameters:
+            fix = await self.fix_chain.arun(
+                rules=rules,
                 programming_language=programming_language,
                 chunk=parameter["chunk"],
-                rules=rules,
-                parameter_type=parameter["type"],
             )
-        )
-        print(violation)
 
-        if violation:
-            error: Error = {
-                "message": violation["rule"],
-                "line": int(parameter["line"]),
-                "start_column": int(parameter["start-column"]),
-                "end_column": int(parameter["end-column"]),
-                "fix": fix,
-            }
+            if fix != parameter["chunk"]:
+                violation = violation_prompt.parse(
+                    await self.violation_chain.arun(
+                        programming_language=programming_language,
+                        chunk=parameter["chunk"],
+                        rules=rules,
+                        parameter_type=parameter["type"],
+                    )
+                )
 
-            return error
+                if violation:
+                    error: Error = {
+                        "message": violation["rule"],
+                        "line": int(parameter["line"]),
+                        "start_column": int(parameter["start-column"]),
+                        "end_column": int(parameter["end-column"]),
+                        "fix": fix,
+                    }
 
-
-async def handle_naming_convention(llm: BaseLLM, rules: list[str], chunk: str):
-    is_chat = isinstance(llm, OpenAIChat)
-
-    parse_chain = create_chain_from_prompt(llm, parse_prompt, is_chat)
-    fix_chain = create_chain_from_prompt(llm, fix_prompt, is_chat)
-    violation_chain = create_chain_from_prompt(llm, violation_prompt, is_chat)
-
-    joined_rules = "\n".join(rules)
-
-    parameters = parse_prompt.parse(
-        await parse_chain.arun(
-            programming_language="python",
-            chunk=escape_code(enumarate_lines(chunk)),
-        )
-    )
-    print(parameters)
-
-    coros: list[Coroutine[Any, Any, Error | None]] = []
-    for parameter in parameters:
-        coros.append(
-            handle_parameter(
-                fix_chain=fix_chain,
-                violation_chain=violation_chain,
-                rules=joined_rules,
-                programming_language="python",
-                parameter=parameter,
-            )
-        )
-
-    result: list[Error | None] = await asyncio.gather(*coros)
-    return [item for item in result if item]
+                    return error

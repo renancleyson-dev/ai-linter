@@ -1,4 +1,3 @@
-import asyncio
 from typing import Optional, Final
 from langchain.llms.base import BaseLLM
 from langchain.chat_models import ChatOpenAI
@@ -20,6 +19,3 @@ class OpenAILintEngine(BaseLintEngine):
                 "top_p": 0
             }
         )  # type: ignore
-
-    def run(self, chunks, rules):
-        return asyncio.run(self.arun(chunks, rules))

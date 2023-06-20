@@ -10,7 +10,7 @@ from langchain.prompts.chat import (
 from langchain.prompts.few_shot_with_templates import FewShotPromptWithTemplates
 from langchain.prompts.prompt import PromptTemplate
 
-from ..prompts.base import Prompt
+from ...prompts.base import Prompt
 
 EXAMPLE_TEMPLATE = """\
 USER:
@@ -20,32 +20,28 @@ ASSISTANT:
 {answer}\
 """
 
-PREFIX_TEMPLATE = """\
-{instruction}
-
-=========== EXAMPLES ===========
-"""
+BASE_PREFIX_TEMPLATE = """=========== EXAMPLES ==========="""
+INSTRUCTION_TEMPLATE = """{instruction}"""
+PREFIX_TEMPLATE = f"{INSTRUCTION_TEMPLATE}\n\n{BASE_PREFIX_TEMPLATE}"
 
 BASE_SUFFIX_TEMPLATE = """
 =========== END OF EXAMPLES ===========
 """
 
-SUFFIX_TEMPLATE = (
-    BASE_SUFFIX_TEMPLATE
-    + """
-
+BASE_ENTRY_TEMPLATE = """
 USER:
 {input}
 
 ASSISTANT:
 """
-)
+
+SUFFIX_TEMPLATE = f"{BASE_SUFFIX_TEMPLATE}\n\n{BASE_ENTRY_TEMPLATE}"
 
 
 def create_chain_from_prompt(llm: BaseLLM, prompt: Prompt, is_chat=False):
     input_variables: list[str] = []
     full_prompt: BasePromptTemplate | None = None
-    instruction_prompt = None
+    instruction_prompt = PromptTemplate.from_template(BASE_PREFIX_TEMPLATE)
 
     examples = cast(list[dict], prompt.examples)
     example_prompt = PromptTemplate.from_template(EXAMPLE_TEMPLATE)
@@ -91,4 +87,5 @@ def create_chain_from_prompt(llm: BaseLLM, prompt: Prompt, is_chat=False):
     return LLMChain(
         llm=llm,
         prompt=full_prompt,
+        verbose=True,
     )

@@ -9,7 +9,9 @@ requires-python = ">=3.11"
 dependencies = [
     "mypy",
     "langchain",
-    "openai"
+    "openai",
+    "tree_sitter",
+    "types-tree-sitter",
 ]
 
 [project.optional-dependencies]
