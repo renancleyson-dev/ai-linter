@@ -16,6 +16,9 @@ class Chunk(TypedDict):
 class BaseLintEngine(ABC):
     llm: Any
 
+    def run(self, chunks: list[Chunk], rules: list[str]) -> dict[str, list[Error]]:
+        return asyncio.run(self.arun(chunks, rules))
+
     async def arun(self, chunks: list[Chunk], rules: list[str]):
         if not (self.llm):
             raise ValueError("No LLM was initialized")
@@ -38,6 +41,3 @@ class BaseLintEngine(ABC):
                 errors[chunk["file"]].extend(naming_convention_result)
 
         return errors
-
-    def run(self, chunks: list[Chunk], rules: list[str]) -> dict[str, list[Error]]:
-        return asyncio.run(self.arun(chunks, rules))

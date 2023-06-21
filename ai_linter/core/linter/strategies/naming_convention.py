@@ -4,6 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.llms.base import BaseLLM
 from langchain.chains import LLMChain
 from langchain.agents import AgentType, AgentExecutor
+from ai_linter.core.utils import flat
 
 from ..prompts.base import Error
 from ..prompts.group_rules_by_target import group_rules_prompt
@@ -49,7 +50,7 @@ class NamingConventionStrategy:
     async def arun(
         self, chunk: str, rules: list[str], programming_language: SupportedLanguages
     ):
-        coros: list[Coroutine[Any, Any, Error | None]] = []
+        coros: list[Coroutine[Any, Any, list[Error]]] = []
 
         code_search = create_code_search(
             chunk=chunk, programming_language=programming_language
@@ -74,7 +75,7 @@ class NamingConventionStrategy:
                 )
             )
 
-        result: list[Error | None] = await asyncio.gather(*coros)
+        result: list[Error] = flat(await asyncio.gather(*coros))
         return [item for item in result if item]
 
     async def _handle_target(
@@ -84,6 +85,8 @@ class NamingConventionStrategy:
         programming_language: SupportedLanguages,
     ):
         PROMPT = f"Show me code related to {target}"
+        errors: list[Error] = []
+
         parameters = self.parse_search_output(self.code_search_agent.run(PROMPT))
 
         for parameter in parameters:
@@ -93,23 +96,24 @@ class NamingConventionStrategy:
                 chunk=parameter["chunk"],
             )
 
-            if fix != parameter["chunk"]:
-                violation = violation_prompt.parse(
-                    await self.violation_chain.arun(
-                        programming_language=programming_language,
-                        chunk=parameter["chunk"],
-                        rules=rules,
-                        parameter_type=parameter["type"],
-                    )
+            violation = violation_prompt.parse(
+                await self.violation_chain.arun(
+                    programming_language=programming_language,
+                    chunk=parameter["chunk"],
+                    rules=rules,
+                    parameter_type=parameter["type"],
                 )
+            )
 
-                if violation:
-                    error: Error = {
-                        "message": violation["rule"],
-                        "line": int(parameter["line"]),
-                        "start_column": int(parameter["start-column"]),
-                        "end_column": int(parameter["end-column"]),
-                        "fix": fix,
-                    }
+            if violation:
+                error: Error = {
+                    "message": violation["rule"],
+                    "line": int(parameter["line"]),
+                    "start_column": int(parameter["start-column"]),
+                    "end_column": int(parameter["end-column"]),
+                    "fix": fix,
+                }
 
-                    return error
+                errors.append(error)
+
+        return errors
