@@ -16,7 +16,8 @@ class Run(Command):
 
     def configure(self, subparsers):
         parser = subparsers.add_parser(
-            "run", description="Run the linter into a codebase, directory, or file"
+            "run",
+            description="Run the linter. The conf file is required to be within the current folder",
         )
         parser.add_argument(
             "--path",
