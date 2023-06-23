@@ -17,14 +17,24 @@ An AI coding assistant relies on its training data from different codebases, whi
 AI Linter aims to be a next-generation, developer-centric tool. Next-generation tools should provide more human-friendly, easier, and faster ways to assist developers. AI Linter achieves this by offering a powerful method to define rules using natural language, without requiring any implementation.
 
 ## So what do you have for me?
+
 The project is currently under development, with only the author working on it. New opinions and contributions are welcome. Feel free to contact [contact him](https://github.com/renancleyson-dev) for further discussions.
 
 Currently, there's only a CLI application that can handle some naming convention rules in Python using GPT3.5, An OpenAI API key is required. It prints a fix suggestion and the violations along with the corresponding code locations. It uses something around $0.01 for 5 rules linting 1 source code file with 90 lines which is very expensive(imagine that on a codebase or running continuously with that file). 
 
 #### Based on the progress made so far, the goals for the first release are as follows:
+
   - AI Linter should handle rules that are genuinely useful for developers, such as best practices.
   - Improve token usage and performance (maybe changing the model or limiting it to code review purposes only).
   - Support mainstream programming languages like JavaScript, C, C#, C++, Rust, Java, Ruby, etc.
+
+#### Roadmap
+
+TODO
+
+## Evaluation
+
+TODO
 
 ## Development
 ### Setup
@@ -39,15 +49,16 @@ Feel free to setup with your own tools. The standard way is with `pip-tools` and
   pip install pip-tools
   pip-sync
 ```
-### Initialize the CLI with a project
+### Initialize the linter
+
+The command below creates a `.ai-linter.json` file. Fill it with some rules, such as `{ "condition": "classes should be snake-case" }`.
 ```
   python -m ai_linter.cli init --path=/path/to/project
 ```
 
-This command will create a .ai-linter.json file. You can fill it with rules, such as `{ "condition": "classes should be snake-case" }`.
-
 ### Run the linter
-Go to the folder you initialized the project and run any of the commands below.
+
+Go to the project and run any of the commands below.
 ```
   python -m ai_linter.cli run --path=/path/to/a/project/file
   python -m ai_linter.cli run --path=/path/to/a/project/folder

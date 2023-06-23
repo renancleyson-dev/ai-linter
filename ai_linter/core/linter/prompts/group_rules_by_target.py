@@ -1,5 +1,4 @@
 import json
-from enum import StrEnum
 from typing import cast
 
 from .base import Prompt, Example

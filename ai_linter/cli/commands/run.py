@@ -31,7 +31,7 @@ class Run(Command):
         configuration = configuration_storage.get_configuration(os.getcwd())
         api_key = configuration.get("OPENAI_API_KEY")
 
-        if not configuration["rules"]:
+        if not configuration.get("rules"):
             raise ValueError("rules missing on the .ai-linter.json")
 
         if not api_key:

@@ -25,13 +25,13 @@ def get_repositories():
 
         command = subprocess.run(["git", "clone", repo_url, destination], text=True)
 
-        if command.returncode != 0 and command.stderr:
+        if command.returncode == 0:
+            repo_paths.append(destination)
+        else:
             print(
                 f"""Something went wrong when trying to get the {language_repo} repository. \
                 The command returned with the following error: {command.stderr}"""
             )
-        else:
-            repo_paths.append(destination)
 
     return repo_paths
 

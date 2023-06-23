@@ -26,13 +26,16 @@ class RulesClassificationStrategy:
     async def arun(self, rules: list[str]):
         labeled_rules: dict[str, list[str]] = {label: [] for label in Rules}
 
-        async def handle_rule(rule: str):
+        coros = [self._handle_rule(rule) for rule in rules]
+        for coro in asyncio.as_completed(coros):
+            label, rule = await coro
+            labeled_rules[label].append(rule)
+
+        return labeled_rules
+    
+    async def _handle_rule(self, rule: str):
             label = rule_classification_prompt.parse(
                 await self.rule_classification_chain.arun(rule=rule)
             )
 
-            labeled_rules[label].append(rule)
-
-        await asyncio.gather(*[handle_rule(rule) for rule in rules])
-
-        return labeled_rules
+            return (label, rule)

@@ -3,6 +3,7 @@ from langchain.llms.base import BaseLLM
 from langchain.agents import initialize_agent, Tool, AgentType, AgentExecutor
 from typing import TypedDict, Callable, cast
 from enum import StrEnum, auto
+from ai_linter.core.utils import is_implemented
 
 from ...code_search import BaseCodeSearch, ParseParameter
 
@@ -53,25 +54,32 @@ CODE_SEARCH_QUERY_METHODS: list[CodeSearchTool] = [
 ]
 
 
-def serialize_output(method: Callable):
-    def wrap(*args, **kwargs):
-        return json.dumps(method(*args, **kwargs))
+def serialize_output(func: Callable):
+    def wrapper(*args, **kwargs):
+        return json.dumps(func(*args, **kwargs))
 
-    return wrap
+    return wrapper
+
+
+def load_output(value: str):
+    return json.loads(value)
 
 
 def code_search_to_tools(code_search: BaseCodeSearch):
     tools: list[Tool] = []
 
     for method in CODE_SEARCH_QUERY_METHODS:
-        tools.append(
-            Tool(
-                func=serialize_output(getattr(code_search, method["method_name"])),
+        method_func = getattr(code_search, method["method_name"])
+
+        if is_implemented(method_func):
+            tool = Tool(
+                func=serialize_output(method_func),
                 name=method["name"],
                 description=method["description"],
                 return_direct=True,
             )
-        )
+
+            tools.append(tool)
 
     return tools
 
@@ -80,11 +88,6 @@ def create_code_search_agent(
     code_search: BaseCodeSearch, llm: BaseLLM, agent_type: AgentType
 ) -> tuple[AgentExecutor, ParseSearch]:
     tools = code_search_to_tools(code_search)
-    agent = initialize_agent(
-        tools=tools,
-        llm=llm,
-        agent=agent_type,
-        verbose=True,
-    )
+    agent = initialize_agent(tools=tools, llm=llm, agent=agent_type)
 
-    return (agent, lambda value: cast(list[ParseParameter], json.loads(value)))
+    return (agent, lambda value: cast(list[ParseParameter], load_output(value)))

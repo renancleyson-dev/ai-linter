@@ -8,13 +8,6 @@ convert the generated plain text into a code chunk with the linting rules applie
 
 Here's a simple representation of the procedure:
 code chunk -> plain text -> code chunk with rules applied.
-
-Use the following instructions to complete the task:
-    - For each code chunk:
-        - Supposing that there's a single rule "variables should be camel-case" and a chunk "some_var"
-        - Convert the code chunk into a plain text form by capturing the words in the chunk: "some_var" -> "some var"
-        - Convert the generated plain text into a code chunk with the rules applied: "some var" -> "someVar"
-    - Finally, show the output with the original chunk and generated chunk.\
 """
 
 INPUT_TEMPLATE = """\

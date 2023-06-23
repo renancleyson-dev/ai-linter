@@ -66,11 +66,11 @@ class NamingConventionStrategy:
             await self.group_rules_chain.arun(rules="\n".join(rules))
         )
 
-        for target, rules in grouped_rules.items():
+        for target, target_rules in grouped_rules.items():
             coros.append(
                 self._handle_target(
                     target=target,
-                    rules="\n".join(rules),
+                    rules="\n".join(target_rules),
                     programming_language=programming_language,
                 )
             )

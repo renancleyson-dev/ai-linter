@@ -1,4 +1,4 @@
-from typing import TypedDict, Any
+from typing import TypedDict
 from langchain.output_parsers.enum import EnumOutputParser
 import textwrap
 
