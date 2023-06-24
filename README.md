@@ -30,7 +30,16 @@ Currently, there's only a CLI application that can handle some naming convention
 
 #### Roadmap
 
-TODO
+Here's the plan for what is coming soon:
+  - Improve code querying and target extraction. Something essential for AI Linter is to be able to extract the targets from the rules and search code related to it, but this is something that still needs some work.
+  - Improve code evaluation from AI with more strict queries and better reasoning from prompts.
+  - Support useful and common use cases. This is when we finally can see some evaluations about how precise, performant, and expensive AI Linter will be.
+  - Change the configuration file format. Currently, the format is JSON but it's not ideal to write rules, mainly the extensive ones that may require examples.
+  - Add some caching for the rules evaluation process since the rules don't change frequently and it would reduce the token usage and improve performance a lot.
+  - Use [tree-sitter's incremental parsing](https://tree-sitter.github.io/tree-sitter) and create a process for incremental linting.
+  - Add support for more programming languages.
+  - Create extensions for IDEs and code editors.
+  - Add usage for CI pipelines.
 
 ## Evaluation
 
